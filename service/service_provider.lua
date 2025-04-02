@@ -1,7 +1,10 @@
+-- 引入skynet库，用于构建服务和消息处理
 local skynet = require "skynet"
 
+-- 定义一个空表provider，用于存储服务提供相关的函数
 local provider = {}
 
+-- 定义一个内部函数new_service，用于创建新的服务实例
 local function new_service(svr, name)
 	local s = {}
 	svr[name] = s
@@ -9,9 +12,11 @@ local function new_service(svr, name)
 	return s
 end
 
+-- 创建一个元表svr，当访问不存在的键时，调用new_service函数创建新的服务实例
 local svr = setmetatable({}, { __index = new_service })
 
 
+-- 定义provider表中的query函数，用于查询服务地址
 function provider.query(name)
 	local s = svr[name]
 	if s.queue then
@@ -25,6 +30,7 @@ function provider.query(name)
 	end
 end
 
+-- 定义一个内部函数boot，用于启动服务并初始化
 local function boot(addr, name, code, ...)
 	local s = svr[name]
 	skynet.call(addr, "lua", "init", code, ...)
@@ -39,6 +45,7 @@ local function boot(addr, name, code, ...)
 	s.time = skynet.time()
 end
 
+-- 定义provider表中的launch函数，用于启动新的服务
 function provider.launch(name, code, ...)
 	local s = svr[name]
 	if s.address then
@@ -78,6 +85,7 @@ function provider.launch(name, code, ...)
 	end
 end
 
+-- 定义provider表中的test函数，用于测试服务状态
 function provider.test(name)
 	local s = svr[name]
 	if s.booting then
@@ -91,6 +99,7 @@ function provider.test(name)
 	end
 end
 
+-- 定义provider表中的close函数，用于关闭服务
 function provider.close(name)
 	local s = svr[name]
 	if not s or s.booting then
@@ -101,6 +110,7 @@ function provider.close(name)
 	skynet.ret(skynet.pack(s.address))
 end
 
+-- 启动skynet服务，并设置消息处理和信息获取函数
 skynet.start(function()
 	skynet.dispatch("lua", function(session, address, cmd, ...)
 		provider[cmd](...)

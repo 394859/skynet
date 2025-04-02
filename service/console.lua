@@ -2,6 +2,14 @@ local skynet = require "skynet"
 local snax   = require "skynet.snax"
 local socket = require "skynet.socket"
 
+---
+-- @file console.lua
+-- @brief 该文件实现了一个控制台服务，用于接收用户输入的命令并执行相应的操作。
+-- 支持创建新的Skynet服务和Snax服务。
+--
+-- @author Your Name
+-- @date 2024-07-25
+---
 local function split_cmdline(cmdline)
 	local split = {}
 	for i in string.gmatch(cmdline, "%S+") do
